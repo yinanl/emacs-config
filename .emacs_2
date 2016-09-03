@@ -1,0 +1,116 @@
+;;-----------------------------;;
+;;;; Emacs Settings  ;;;;
+;;
+;; check variable 'load-path'
+;;----------------------;;
+
+;; use MELPA
+(load "package")
+(package-initialize)
+;;(add-to-list 'package-archives
+;;             '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+
+(setq package-archive-enable-alist '(("melpa" deft magit)))
+
+
+
+
+;;----------------------;;
+;;;; Minor Modes  ;;;;
+;;----------------------;;
+
+;; line mode ;;
+(setq line-number-mode t)
+(setq column-number-mode t)
+(add-hook 'prog-mode-hook 'linum-mode)
+
+;; auto fill mode ;;
+(require 'ido)
+(ido-mode t)
+
+;; auto-complete mode for coding;;
+;(add-to-list 'load-path "~/.emacs.d/elpa/auto-complete-20160710.1544")
+;(add-to-list 'load-path "~/.emacs.d/elpa/popup-20160709.729")
+(ac-config-default)
+(global-auto-complete-mode t)
+
+;; spelling check ;;
+(setq ispell-program-name "/usr/local/bin/aspell") ;;need to install beforehand using homebrew
+(setq ispell-dictionary "en_US")
+
+;; color mode  ;;
+(load-theme 'misterioso)
+
+
+
+
+;;----------------------;;
+;;;; Major Modes  ;;;;
+;;----------------------;;
+
+;; latex mode ;;
+;; "/Library/TeX/texbin" is the symbolic link of "/usr/local/texlive/2015/bin/x86_64-darwin" in El Capitan
+(setenv "PATH" (concat "/Library/TeX/texbin:/usr/local/bin:" (getenv "PATH")))
+(setq exec-path (append exec-path '("/Library/TeX/texbin" "/usr/local/bin")))
+(require 'tex-site)
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+
+(setq TeX-PDF-mode t)
+
+(add-hook 'TeX-mode-hook 'visual-line-mode)
+(add-hook 'TeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+
+;; set latexmk as default compiler
+(add-hook 'LaTeX-mode-hook (lambda ()
+  (push
+    '("latexmk" "latexmk -pdf %s" TeX-run-TeX nil t
+      :help "Run latexmk on file")
+    TeX-command-list)))
+(add-hook 'TeX-mode-hook '(lambda () (setq TeX-command-default "latexmk")))
+
+;;(setq TeX-source-correlate-method 'synctex)
+;;(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+
+;; use Skim as default pdf viewer
+(setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+
+;; Skim's displayline is used for forward search (from .tex to .pdf)
+;; option -b highlights the current line; option -g opens Skim in the background  
+(setq TeX-view-program-list
+     '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b -g %n %o %b")))
+
+(server-start); start emacs in server mode so that skim can talk to it
+
+
+;; c++ mode ;;
+(defun my-c++-mode-hook ()
+  (setq c-basic-offset 4)
+  (c-set-offset 'substatement-open 0)
+  (local-set-key (kbd "C-c C-c") nil)
+  (local-set-key (kbd "C-c C-/") 'comment-or-uncomment-region))
+
+(add-hook 'c++-mode-hook 'my-c++-mode-hook)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((company-clang-arguments "-I/usr/local/Cellar/boost/1.55.0_2/include/" "-I/usr/local/include" "-I/Applications/MATLAB_R2015b.app/extern/include/")
+     (company-clang-arguments "-I/usr/local/Cellar/boost/1.61.0_1/include/" "-I/usr/local/include" "-I/Applications/MATLAB_R2016a.app/extern/include/")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+
+;; gdb mode ;;
+(setq gdb-many-windows t)
